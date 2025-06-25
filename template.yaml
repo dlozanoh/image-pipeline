@@ -1,18 +1,59 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Image Processing Pipeline
+Description: Image Processing Pipeline with AWS SAM, Step Functions & Go Lambdas
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: go1.x
 
 Resources:
-  DetectLabel:
-  Type: AWS::Serverless::Application
-  Properties:
-    Location: ./functions/detect-labels
-  
-  GenerateThumbnails:
+
+  # Import nested applications for each Lambda
+  GenerateThumbnailsApp:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ./functions/generate-thumbnails
-  StoreMetadata:
+      Location: functions/generate-thumbnails/template.yaml
+
+  DetectLabelsApp:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ./functions/store-metadata
+      Location: functions/detect-labels/template.yaml
+
+  StoreMetadataApp:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: functions/store-metadata/template.yaml
+
+  # Step Functions State Machine
+  ImageProcessingStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: ImageProcessingPipeline
+      DefinitionUri: statemachine/state-machine.asl.json
+      DefinitionSubstitutions:
+        GenerateThumbnailsFunctionArn: !GetAtt GenerateThumbnailsApp.Outputs.GenerateThumbnailsFunctionArn
+        DetectLabelsFunctionArn: !GetAtt DetectLabelsApp.Outputs.DetectLabelsFunctionArn
+        StoreMetadataFunctionArn: !GetAtt StoreMetadataApp.Outputs.StoreMetadataFunctionArn
+      Role: !GetAtt StepFunctionExecutionRole.Arn
+
+  # IAM Role for Step Functions
+  StepFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StepFunctionInvokeLambda
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: "*"
+

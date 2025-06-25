@@ -1,11 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
 Resources:
   DetectLabelsFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: detect-labels
       Handler: main
-      CodeUri: cmd/detect-labels/
-      Events:
-        StepFunctionInvoke:
-          Type: StepFunctions
+      CodeUri: .
+      Runtime: go1.x
       Policies:
         - RekognitionReadOnly
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: arn:aws:s3:::your-upload-bucket-name/*
+Outputs:
+  DetectLabelsFunctionArn:
+    Value:
+      Fn::GetAtt:
+        - DetectLabelsFunction
+        - Arn

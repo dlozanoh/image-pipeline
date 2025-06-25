@@ -1,18 +1,22 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Image Processing Pipeline - Store Metadata Function
 
 Resources:
   StoreMetadataFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Events:
-        StepFunctionInvoke:
-          Type: StepFunctions
-          Properties:
-            StateMachineName: ImageProcessingStateMachine
+      FunctionName: store-metadata
       Handler: main
-      CodeUri: cmd/store-metadata/
+      CodeUri: .
+      Runtime: go1.x
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: ImageMetadata
+        - AmazonDynamoDBFullAccess # Adjust to fine-grained permissions if needed
+      Environment:
+        Variables:
+          TABLE_NAME: ImageMetadata
+Outputs:
+  StoreMetadataFunctionArn:
+    Value:
+      Fn::GetAtt:
+        - StoreMetadataFunction
+        - Arn

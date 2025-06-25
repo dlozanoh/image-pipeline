@@ -1,32 +1,20 @@
 {
   "Comment": "Image Processing Pipeline",
-  "StartAt": "GenerateThumbnails",
+  "StartAt": "GenerateThumbnail",
   "States": {
-    "GenerateThumbnails": {
+    "GenerateThumbnail": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "FunctionName": "GenerateThumbnailsFunction",
-        "Payload.$": "$"
-      },
+      "Resource": "${GenerateThumbnailsFunctionArn}",
       "Next": "DetectLabels"
     },
     "DetectLabels": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "FunctionName": "DetectLabelsFunction",
-        "Payload.$": "$"
-      },
+      "Resource": "${DetectLabelsFunctionArn}",
       "Next": "StoreMetadata"
     },
     "StoreMetadata": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "FunctionName": "StoreMetadataFunction",
-        "Payload.$": "$"
-      },
+      "Resource": "${StoreMetadataFunctionArn}",
       "End": true
     }
   }
