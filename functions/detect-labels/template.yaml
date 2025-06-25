@@ -1,0 +1,11 @@
+Resources:
+  DetectLabelsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main
+      CodeUri: cmd/detect-labels/
+      Events:
+        StepFunctionInvoke:
+          Type: StepFunctions
+      Policies:
+        - RekognitionReadOnly

@@ -1,0 +1,11 @@
+GenerateThumbnailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main
+      CodeUri: cmd/generate-thumbnails/
+      Events:
+        StepFunctionInvoke:
+          Type: StepFunctions
+      Policies:
+        - S3ReadPolicy:
+            BucketName: your-upload-bucket-name

@@ -1,24 +1,5 @@
 update:
-    go mod tidy
-
-test-clean:
-    go clean -testcache
+	go mod tidy
 
 build:
-    sam build -b deployments
-
-test: update test-clean
-    go test ./...
-
-deploy: build
-    sam deploy --template-file deployments/template.yaml
-
-deploy-guided:
-    sam build && sam deploy --guided
-
-invoke:
-    sam local invoke -e events/s3-put-event.json -t deployments/template.yaml GenerateThumbnailsFunction 
-
-start-api:
-    sam local start-api
-
+	sam build -b deployments
