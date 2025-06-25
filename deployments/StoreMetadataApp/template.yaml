@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  StoreMetadataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: store-metadata
+      Handler: main
+      CodeUri: StoreMetadataFunction
+      Runtime: go1.x
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: ImageMetadata
+    Metadata:
+      SamResourceId: StoreMetadataFunction
+Outputs:
+  StoreMetadataFunctionArn:
+    Value:
+      Fn::GetAtt:
+      - StoreMetadataFunction
+      - Arn

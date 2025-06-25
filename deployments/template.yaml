@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Image Processing Pipeline with AWS SAM, Step Functions & Go Lambdas
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: go1.x
+Resources:
+  GenerateThumbnailsApp:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: GenerateThumbnailsApp/template.yaml
+    Metadata:
+      SamResourceId: GenerateThumbnailsApp
+  DetectLabelsApp:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: DetectLabelsApp/template.yaml
+    Metadata:
+      SamResourceId: DetectLabelsApp
+  StoreMetadataApp:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: StoreMetadataApp/template.yaml
+    Metadata:
+      SamResourceId: StoreMetadataApp
+  ImageProcessingStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: ImageProcessingPipeline
+      DefinitionUri: ../statemachine/state-machine.asl.json
+      DefinitionSubstitutions:
+        GenerateThumbnailsFunctionArn:
+          Fn::GetAtt:
+          - GenerateThumbnailsApp
+          - Outputs.GenerateThumbnailsFunctionArn
+        DetectLabelsFunctionArn:
+          Fn::GetAtt:
+          - DetectLabelsApp
+          - Outputs.DetectLabelsFunctionArn
+        StoreMetadataFunctionArn:
+          Fn::GetAtt:
+          - StoreMetadataApp
+          - Outputs.StoreMetadataFunctionArn
+      Role:
+        Fn::GetAtt:
+        - StepFunctionExecutionRole
+        - Arn
+  StepFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: states.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: StepFunctionInvokeLambda
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: '*'

@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  GenerateThumbnailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: generate-thumbnails
+      Handler: main
+      CodeUri: GenerateThumbnailsFunction
+      Runtime: go1.x
+      Events:
+        S3Trigger:
+          Type: S3
+          Properties:
+            Bucket: your-upload-bucket
+            Events: s3:ObjectCreated:*
+    Metadata:
+      SamResourceId: GenerateThumbnailsFunction
+Outputs:
+  GenerateThumbnailsFunctionArn:
+    Value:
+      Fn::GetAtt:
+      - GenerateThumbnailsFunction
+      - Arn
