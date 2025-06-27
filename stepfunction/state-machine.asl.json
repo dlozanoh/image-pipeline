@@ -1,21 +1,22 @@
 {
-  "Comment": "Image Processing Pipeline",
-  "StartAt": "GenerateThumbnail",
-  "States": {
-    "GenerateThumbnail": {
-      "Type": "Task",
-      "Resource": "${GenerateThumbnailsFunctionArn}",
-      "Next": "DetectLabels"
-    },
-    "DetectLabels": {
-      "Type": "Task",
-      "Resource": "${DetectLabelsFunctionArn}",
-      "Next": "StoreMetadata"
-    },
-    "StoreMetadata": {
-      "Type": "Task",
-      "Resource": "${StoreMetadataFunctionArn}",
-      "End": true
+    "Comment": "Image Processing Pipeline",
+    "StartAt": "GenerateThumbnail",
+    "States": {
+        "GenerateThumbnail": {
+            "Type": "Task",
+            "Resource": "${GenerateThumbnailsFunctionArn}",
+            "Next": "DetectLabels",
+            "Parameters": {}
+        },
+        "DetectLabels": {
+            "Type": "Task",
+            "Resource": "${DetectLabelsFunctionArn}",
+            "Next": "StoreMetadata"
+        },
+        "StoreMetadata": {
+            "Type": "Task",
+            "Resource": "${StoreMetadataFunctionArn}",
+            "End": true
+        }
     }
-  }
 }

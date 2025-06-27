@@ -15,7 +15,7 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:GetObject
-              Resource: arn:aws:s3:::your-upload-bucket-name/*
+              Resource: arn:aws:s3:::images-data-lake/*
 Outputs:
   DetectLabelsFunctionArn:
     Value:

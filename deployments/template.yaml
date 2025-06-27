@@ -1,10 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Image Processing Pipeline with AWS SAM, Step Functions & Go Lambdas
-Globals:
-  Function:
-    Timeout: 10
-    Runtime: go1.x
 Resources:
   GenerateThumbnailsApp:
     Type: AWS::Serverless::Application
@@ -28,7 +24,7 @@ Resources:
     Type: AWS::Serverless::StateMachine
     Properties:
       Name: ImageProcessingPipeline
-      DefinitionUri: ../statemachine/state-machine.asl.json
+      DefinitionUri: ../stepfunction/state-machine.asl.json
       DefinitionSubstitutions:
         GenerateThumbnailsFunctionArn:
           Fn::GetAtt:

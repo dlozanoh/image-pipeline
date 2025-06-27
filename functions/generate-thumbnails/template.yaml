@@ -2,6 +2,41 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaS3Policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: arn:aws:s3:::images-data-lake/*
+        - PolicyName: LambdaLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+  ImageUploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'images-data-lake'
   GenerateThumbnailsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -10,10 +45,11 @@ Resources:
       CodeUri: .
       Runtime: go1.x
       Events:
-        S3Trigger:
+        ImageUploadTrigger:
           Type: S3
           Properties:
-            Bucket: your-upload-bucket
+            Bucket:
+              Ref: ImageUploadBucket
             Events: s3:ObjectCreated:*
 Outputs:
   GenerateThumbnailsFunctionArn:
